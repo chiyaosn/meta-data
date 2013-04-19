@@ -17,13 +17,11 @@ It is managed by MetaDataRepository so that such a map can be queried by its nam
 
 public class NamedPersistentMap {
 
-    private static final Logger logger = LoggerFactory.getLogger(NamedPersistentMap.class);
+//    private static final Logger logger = LoggerFactory.getLogger(NamedPersistentMap.class);
 
     private static final String KEY_SEPARATOR = "##"; // used to construct keys in hbase
     private String name;
     private String tag;   // 1 char
-
-    HashMap<String,Collection<String>> h;
 
     // create a NamedPersistentMap object referencing to corresponding habse representation
     // if no corresponding hbase representation exists, create one in hbase
@@ -62,7 +60,7 @@ public class NamedPersistentMap {
     // get the value collection for this key
     // return an empty arraylist if no value
     public Collection<String> getValue(String key) throws IOException {
-        String prefix = new StringBuilder(tag).append(key).toString();
+        String prefix = new StringBuilder(tag).append(key).append(KEY_SEPARATOR).toString();
         Collection<String> hkeys = HbaseAccess.getKeysWithPrefix(prefix);
         Collection<String> result = new ArrayList<String>(hkeys.size());
         String[] val;
@@ -72,5 +70,6 @@ public class NamedPersistentMap {
         }
         return result;
     }
+
 
 }

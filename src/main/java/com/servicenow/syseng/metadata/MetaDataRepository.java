@@ -47,7 +47,26 @@ public class MetaDataRepository {
 
     public static final void main(String[] args) {
         try {
-            System.out.println("test");
+            NamedPersistentMap hostMetricsMap = new NamedPersistentMap("host-metrics");
+            hostMetricsMap.addValue("host1","xmlstats.transaction.count");
+            hostMetricsMap.addValue("host1","xmlstats.transaction.avg");
+            Collection<String> metrics = hostMetricsMap.getValue("host1");
+            System.out.println("Host host1 has metrics:");
+            for (String m:metrics) {
+                System.out.print(m+" ");
+            }
+            System.out.println();
+
+            NamedPersistentMap dataCenterHostsMap = new NamedPersistentMap("datacenter-hosts");
+            dataCenterHostsMap.addValue("iad1","host1");
+            dataCenterHostsMap.addValue("iad1","host2");
+            Collection<String> hosts = dataCenterHostsMap.getValue("iad1");
+            System.out.println("Data center iad1 has hosts:");
+            for (String h:hosts) {
+                System.out.print(h+" ");
+            }
+            System.out.println();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

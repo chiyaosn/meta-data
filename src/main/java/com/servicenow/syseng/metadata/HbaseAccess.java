@@ -10,11 +10,17 @@ package com.servicenow.syseng.metadata;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.conf.Configuration;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.net.URL;
 
 public class HbaseAccess {
 
@@ -31,31 +37,65 @@ public class HbaseAccess {
     private static final String MAP_SEQUENCE = "<map_sequence>";
     private static final byte[] MAP_SEQUENCE_BYTES = MAP_SEQUENCE.getBytes();
 
-    private static final HTablePool htablePool = new HTablePool();
+    private static Configuration config = HBaseConfiguration.create();
+    private static HBaseAdmin admin;
+    private static HTablePool htablePool;
 
 
-    // make sure hbase has the right schema (TODO: may do it from conf file)
+    // init connections and make sure hbase has the right schema
     public static final void init() {
 
         try {
+
+            config.addResource(new URL("file:///Users/chi.yao/Downloads/hbase-0.94.5/conf/hbase-site.xml"));
+            // TODO: customize path
+
+            // test
+            //config.clear();
+            //config.set("hbase.zookeeper.quorum", "localhost");
+            //config.set("hbase.zookeeper.property.clientPort","2181");
+            //config.set("hbase.master", "localhost:60000");
+            //HBaseAdmin.checkHBaseAvailable(config);
+            //System.out.println("HBase is running!");
+            //  createTable(config);
+            //creating a new table
+            //HTable mytable = new HTable(config, "mytable");
+            //System.out.println("Table mytable obtained ");
+
+            HConnection connection = HConnectionManager.getConnection(config);
+            admin = new HBaseAdmin(connection);
+            htablePool = new HTablePool(config,1); // max versions is 1
+
             // init table m with column family "cf"
             createTableIfNotExists(METADATA_TABLE,DEFAULT_COLUMN_FAMILY);
             // init table map_id with column family "cf"
             createTableIfNotExists(MAP_ID_TABLE,DEFAULT_COLUMN_FAMILY);
-            // add record ("<map_sequence>","cf","c",1) to MAP_ID_TABLE
-            add(MAP_ID_TABLE,MAP_SEQUENCE,ByteBuffer.allocate(8).putLong(1L).array());
-            // add record ("m","cf","c",0) to MAP_ID_TABLE
-            add(MAP_ID_TABLE,METADATA_TABLE,ByteBuffer.allocate(8).putLong(0L).array());
+            // add record ("<map_sequence>","cf","c",0) to MAP_ID_TABLE
+            // <map_sequence>'s value is the current count of maps
+            if (!rowExists(MAP_ID_TABLE,MAP_SEQUENCE)) {
+                add(MAP_ID_TABLE,MAP_SEQUENCE,ByteBuffer.allocate(8).putLong(0L).array());
+            }
 
         } catch (Exception e) {
-            logger.error("Cannot initialize Hbase database");
+            logger.error("Cannot initialize HBase access layer");
+            e.printStackTrace();
         }
-
     }
 
     // add this key-value pair to METADATA_TABLE
     public static final void add(String key, String val) throws IOException {
         add(METADATA_TABLE,key,val);
+    }
+
+    // has row of the given name
+    public static final boolean rowExists(String table, String row) throws IOException {
+        return rowExists(table,row,DEFAULT_COLUMN_FAMILY,DEFAULT_COLUMN);
+    }
+
+    public static final boolean rowExists(String table, String row, String colFamily, String col) throws IOException {
+        HTableInterface htable = htablePool.getTable(table);
+        Result result = htable.get(new Get(row.getBytes()));
+        return !result.isEmpty();
     }
 
     // from METADATA_TABLE
@@ -66,7 +106,7 @@ public class HbaseAccess {
         ResultScanner resultScanner = htable.getScanner(scan);
         ArrayList<String> al = new ArrayList<String>(20);
         for (Result r=resultScanner.next();r!=null;r=resultScanner.next()) {
-            al.add(r.getRow().toString());
+            al.add(new String(r.getRow(),"UTF8"));   // TODO: optimize conversion from byte[] to String
         }
         return al;
     }
@@ -107,8 +147,16 @@ public class HbaseAccess {
         htable.put(new Put(key.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,val));
     }
 
-    private static final void createTableIfNotExists(String table, String columnFamily) {
-        // TBD
+    private static final void createTableIfNotExists(String table, String columnFamily) throws IOException {
+        if (!admin.tableExists(table)) {
+            HTableDescriptor td = new HTableDescriptor(table);
+            td.addFamily(new HColumnDescriptor(columnFamily));
+            admin.createTable(td);
+        }
+        if (admin.isTableDisabled(table)) {
+            admin.enableTable(table);
+        }
+        // TODO: not thread safe in Hbase?
     }
 
     // get val for key from table
@@ -123,7 +171,7 @@ public class HbaseAccess {
         }
         else {
             byte[] v = rs.getValue(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES);
-            return (v==null ? "" : v.toString());
+            return (v==null ? "" : new String(v,"UTF8"));  // TODO: optimize conversion from byte[] to String
         }
     }
 
@@ -131,11 +179,11 @@ public class HbaseAccess {
     // if name does not exist, create tag for it
     public static final String getMapTag(String name) throws IOException {
         String tag = get(MAP_ID_TABLE,name);
-        if (tag == null) {
+        if (tag==null || tag.equals("")) {
             HTableInterface htable = htablePool.getTable(MAP_ID_TABLE);
-            long id = htable.incrementColumnValue(MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,1);
+            long id = htable.incrementColumnValue(MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,1)-1;
             // assuming id <= 26 so that we can use single char tags
-            tag = String.valueOf('a'+id);
+            tag = String.valueOf((char)('a'+id));
             // add this name-tag pair to map_id table
             Put put = new Put(name.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,tag.getBytes());
             htable.put(put);
@@ -143,5 +191,13 @@ public class HbaseAccess {
         return tag;
     }
 
+    public static final void close() {
+        try {
+            htablePool.close();
+            admin.close();
+        } catch (IOException e) {
+            logger.error("Error closing HBase connection");
+        }
+    }
 
 }
