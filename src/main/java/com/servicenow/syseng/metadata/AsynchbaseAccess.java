@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 public class AsynchbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(AsynchbaseAccess.class);
 
-    //public static final String HBASE_URL = "10.64.14.202";     // TODO: get config
-    public static final String HBASE_URL = "localhost";
+    public static final String HBASE_URL = "10.64.14.192";     // TODO: get config
+    //public static final String HBASE_URL = "localhost";
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
@@ -100,9 +100,11 @@ public class AsynchbaseAccess {
     // get value from METADATA_TABLE
     private static final String get(String table, byte[] key) throws Exception {
         GetRequest get = new GetRequest(table, key);
-        Deferred<ArrayList<KeyValue>> d = client.get(get);
-        KeyValue kv = d.join().get(0);
-        return new String(kv.value());
+        ArrayList<KeyValue> a = client.get(get).join();
+        if (a.isEmpty()) {
+            return "";
+        }
+        return new String(a.get(0).value());
     }
 
     public static final Collection<String> getAllKeys() throws Exception {
