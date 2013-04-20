@@ -24,16 +24,17 @@ public class Test {
         Random generator = new Random();
 
         /* Asynchbase test code here */
-
+     /*
         long startTimeAsync = System.currentTimeMillis();
         AsynchbaseAccess.init();
-
+     */
         /*for(int i = 1; i <= 100; ++i) {
             for(int j = 1; j <= 100; ++j) {
                 AsynchbaseAccess.add("h" + i + "-m" + j, new Integer(generator.nextInt(100)).toString());
             }
         }*/
 
+      /*
         //System.out.println(AsynchbaseAccess.get("h1-m2"));
         ArrayList<String> keysAsync = (ArrayList<String>) AsynchbaseAccess.getAllKeys("h2-");
         for(String key : keysAsync) {
@@ -45,10 +46,11 @@ public class Test {
         System.out.println("Asynchbase read total time = " + totalTimeAsync + "ms");
 
         AsynchbaseAccess.disconnect();
+      */
 
         /* HTable test code here */
 
-        /*long startTimeHTable = System.currentTimeMillis();
+        long startTimeHTable = System.currentTimeMillis();
         HbaseAccess.init();
         ArrayList<String> keysHTable = (ArrayList<String>) HbaseAccess.getKeysWithPrefix("h1");
         System.out.println(keysHTable.size());
@@ -56,6 +58,6 @@ public class Test {
         long totalTimeHTable = endTimeHTable - startTimeHTable;
         System.out.println("HTable read total time = " + totalTimeHTable + "ms");
 
-        HbaseAccess.close();*/
+        HbaseAccess.close();
     }
 }

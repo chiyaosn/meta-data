@@ -17,8 +17,9 @@ public class MetaDataRepository {
         try {
             // make sure hbase has the schema
             HbaseAccess.init();
+            AsynchbaseAccess.init();
             repositoryMap = new NamedPersistentMap(REPO_MAP_NAME);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Cannot initialize MetaDataRepository");
         }
     }
@@ -47,6 +48,8 @@ public class MetaDataRepository {
 
     public static final void main(String[] args) {
         try {
+            long startTime = System.currentTimeMillis();
+
             NamedPersistentMap hostMetricsMap = new NamedPersistentMap("host-metrics");
             hostMetricsMap.addValue("host1","xmlstats.transaction.count");
             hostMetricsMap.addValue("host1","xmlstats.transaction.avg");
@@ -66,6 +69,9 @@ public class MetaDataRepository {
                 System.out.print(h+" ");
             }
             System.out.println();
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("Elapsed time = "+ (endTime-startTime) + " ms");
 
         } catch (Exception e) {
             e.printStackTrace();

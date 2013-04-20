@@ -22,17 +22,27 @@ public class NamedPersistentMap {
     private static final String KEY_SEPARATOR = "##"; // used to construct keys in hbase
     private String name;
     private String tag;   // 1 char
+    //private Class dataAccess = HbaseAccess.class;
+    private Class dataAccess = AsynchbaseAccess.class;
+
 
     // create a NamedPersistentMap object referencing to corresponding habse representation
     // if no corresponding hbase representation exists, create one in hbase
     public NamedPersistentMap(String name) throws IOException {
         this.name = name;
-        tag = HbaseAccess.getMapTag(name);
+        try {
+            //tag = HbaseAccess.getMapTag(name);
+            tag = (String) dataAccess.getMethod("getMapTag",String.class).invoke(null,name);
+        } catch (Exception e)  {e.printStackTrace();}
     }
 
     // get all keys for this NamedPersistentMap
     public Collection<String> keys() throws IOException {
-        Collection<String> hkeys = HbaseAccess.getKeysWithPrefix(tag);
+        Collection<String> hkeys=null;
+        try {
+            //hkeys = HbaseAccess.getKeysWithPrefix(tag);
+            hkeys = (Collection<String>) dataAccess.getMethod("getKeysWithPrefix",String.class).invoke(null,tag);
+        } catch (Exception e)  {}
         // hkey is of form <tag><key>##<value>, where <table> is 1 char long
         HashSet<String> result = new HashSet<String>(hkeys.size());
         String s;
@@ -48,20 +58,30 @@ public class NamedPersistentMap {
         String hkey = new StringBuffer(tag)  // no separator to save space
                 .append(key).append(KEY_SEPARATOR)
                 .append(value).toString();
-        HbaseAccess.add(hkey,"");
+        //HbaseAccess.add(hkey,"");
+        try {
+            dataAccess.getMethod("add",String.class,String.class).invoke(null,hkey,"");
+        } catch (Exception e)  {}
     }
 
     // remove the key’s mapped collection
     public void removeKey(String key) throws IOException {
         String prefix = new StringBuilder(tag).append(key).toString();
-        HbaseAccess.removeKeysWithPrefix(prefix);
+        //HbaseAccess.removeKeysWithPrefix(prefix);
+        try {
+            dataAccess.getMethod("removeKeysWithPrefix",String.class).invoke(null,prefix);
+        } catch (Exception e)  {}
     }
 
     // get the value collection for this key
     // return an empty arraylist if no value
     public Collection<String> getValue(String key) throws IOException {
         String prefix = new StringBuilder(tag).append(key).append(KEY_SEPARATOR).toString();
-        Collection<String> hkeys = HbaseAccess.getKeysWithPrefix(prefix);
+        Collection<String> hkeys = null;
+        try {
+            //hkeys = HbaseAccess.getKeysWithPrefix(prefix);
+            hkeys = (Collection<String>) dataAccess.getMethod("getKeysWithPrefix",String.class).invoke(null,prefix);
+        } catch (Exception e)  {e.printStackTrace();}
         Collection<String> result = new ArrayList<String>(hkeys.size());
         String[] val;
         for (String k:hkeys) {

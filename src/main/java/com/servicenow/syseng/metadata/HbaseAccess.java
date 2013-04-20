@@ -27,6 +27,7 @@ public class HbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(HbaseAccess.class);
 
     public static final String HBASE_URL = "10.64.14.202";     // TODO: get config
+    //public static final String HBASE_URL = "localhost";
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final String MAP_ID_TABLE = "map_id";
@@ -46,18 +47,10 @@ public class HbaseAccess {
     public static final void init() {
 
         try {
-            config.set("hbase.master", HBASE_URL + ":60010");
-            config.set("hbase.zookeeper.quorum", HBASE_URL);
-            config.set("hbase.zookeeper.property.clientPort", "2181");
-
-            // TODO: customize path
-            //config.addResource(new URL("file:///Users/chi.yao/Downloads/hbase-0.94.5/conf/hbase-site.xml"));
-
+            config.set("hbase.master", HBASE_URL+":60000");   // NOT USED?????
+            //config.set("hbase.zookeeper.quorum", HBASE_URL);
+            //config.set("hbase.zookeeper.property.clientPort", "2181");
             // test
-            //config.clear();
-            //config.set("hbase.zookeeper.quorum", "localhost");
-            //config.set("hbase.zookeeper.property.clientPort","2181");
-            //config.set("hbase.master", "localhost:60000");
             //HBaseAdmin.checkHBaseAvailable(config);
             //System.out.println("HBase is running!");
             //  createTable(config);

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.Put;
 import org.hbase.async.*;
 
 import com.stumbleupon.async.Callback;
@@ -23,7 +25,8 @@ import org.slf4j.LoggerFactory;
 public class AsynchbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(AsynchbaseAccess.class);
 
-    public static final String HBASE_URL = "10.64.14.202";     // TODO: get config
+    //public static final String HBASE_URL = "10.64.14.202";     // TODO: get config
+    public static final String HBASE_URL = "localhost";
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
@@ -74,20 +77,29 @@ public class AsynchbaseAccess {
 
     // add key-val pair to METADATA_TABLE
     private static final void add(byte[] key, byte[] val) throws Exception {
+        add(METADATA_TABLE_BYTES,key,val);
+    }
+
+    // add key-val pair to METADATA_TABLE
+    private static final void add(byte[] table, byte[] key, byte[] val) throws Exception {
         PutRequest put = new PutRequest(
-                METADATA_TABLE_BYTES, key, DEFAULT_CF_BYTES, DEFAULT_CF_BYTES, val);
+                table, key, DEFAULT_CF_BYTES, DEFAULT_CF_BYTES, val);
         Deferred<Object> d = client.put(put);
         d.join();
     }
 
     // get value from METADATA_TABLE
     public static final String get(String key) throws Exception {
-        return get(key.getBytes());
+        return get(METADATA_TABLE,key);
+    }
+
+    public static final String get(String table, String key) throws Exception {
+        return get(table, key.getBytes());
     }
 
     // get value from METADATA_TABLE
-    private static final String get(byte[] key) throws Exception {
-        GetRequest get = new GetRequest(METADATA_TABLE, key);
+    private static final String get(String table, byte[] key) throws Exception {
+        GetRequest get = new GetRequest(table, key);
         Deferred<ArrayList<KeyValue>> d = client.get(get);
         KeyValue kv = d.join().get(0);
         return new String(kv.value());
@@ -107,7 +119,7 @@ public class AsynchbaseAccess {
         return keys;
     }
 
-    public static final Collection<String> getAllKeys(String prefix) throws Exception {
+    public static final Collection<String> getKeysWithPrefix(String prefix) throws Exception {
         final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
         scanner.setFamily(DEFAULT_CF_BYTES);
         scanner.setQualifier(DEFAULT_CF_BYTES);
@@ -120,6 +132,21 @@ public class AsynchbaseAccess {
             keys.add(new String(rows.get(0).get(0).key()));
         }
         return keys;
+    }
+
+    // get table 1 char tag for map name
+    // if name does not exist, create tag for it
+    public static final String getMapTag(String name) throws Exception {
+        String tag = get(MAP_ID_TABLE,name);
+        if (tag==null || tag.equals("")) {
+            long id = client.atomicIncrement(new AtomicIncrementRequest(
+                    MAP_ID_TABLE_BYTES,MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES)).join()-1;
+            // assuming id <= 26 so that we can use single char tags
+            tag = String.valueOf((char)('a'+id));
+            // add this name-tag pair to map_id table
+            add(MAP_ID_TABLE_BYTES, name.getBytes(), tag.getBytes());
+        }
+        return tag;
     }
 
     static void println(String msg) {
