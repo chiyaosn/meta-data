@@ -22,8 +22,8 @@ public class NamedPersistentMap {
     private static final String KEY_SEPARATOR = "##"; // used to construct keys in hbase
     private String name;
     private String tag;   // 1 char
-    //private Class dataAccess = HbaseAccess.class;
-    private Class dataAccess = AsynchbaseAccess.class;
+    private Class dataAccess = HbaseAccess.class;
+    //private Class dataAccess = AsynchbaseAccess.class;
 
 
     // create a NamedPersistentMap object referencing to corresponding habse representation
