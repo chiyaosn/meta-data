@@ -48,8 +48,10 @@ public class HbaseAccess {
 
         try {
             config.set("hbase.master", HBASE_URL+":60000");   // NOT USED?????
-            //config.set("hbase.zookeeper.quorum", HBASE_URL);
-            //config.set("hbase.zookeeper.property.clientPort", "2181");
+            String s = config.get("hbase.master");
+            System.out.println(s);
+            config.set("hbase.zookeeper.quorum", HBASE_URL);
+            config.set("hbase.zookeeper.property.clientPort", "2181");
             // test
             //HBaseAdmin.checkHBaseAvailable(config);
             //System.out.println("HBase is running!");

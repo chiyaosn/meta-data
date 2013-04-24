@@ -78,8 +78,8 @@ public class MetaDataRepository {
             System.out.println();
 
             NamedPersistentMap dataCenterHostsMap = new NamedPersistentMap("datacenter-hosts");
-            dataCenterHostsMap.addValue("iad1","host1");
-            dataCenterHostsMap.addValue("iad1","host2");
+            dataCenterHostsMap.addValue("iad2","host1");
+            dataCenterHostsMap.addValue("iad2","host2");
             Collection<String> hosts = dataCenterHostsMap.getValue("iad1");
             System.out.println("Data center iad1 has hosts:");
             for (String h:hosts) {
@@ -97,12 +97,14 @@ public class MetaDataRepository {
             readings.add(new Reading("longterm", ReadingType.GAUGE, 0.3));
             CanonicalMetrics cm = new CanonicalMetrics(
                     System.currentTimeMillis(),"42",
-                    "jenkins01.sea2.service-now.com","xmlstats.linux.load.load",
+                    "jenkins02.sea2.service-now.com","xmlstats.linux.load.load",
                     null,"1.0","1.1",readings);
             // test extractor
             MetaDataExtractor extractor = new TestHostMetricsExtractor();
             // extact and add meta data
             addMetaData(extractor,cm);
+
+            System.exit(0);
 
         } catch (Exception e) {
             e.printStackTrace();
