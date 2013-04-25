@@ -1,8 +1,10 @@
 package com.servicenow.syseng.metadata;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import com.servicenow.syseng.datamodel.CanonicalMetrics;
 import com.servicenow.syseng.datamodel.Reading;
@@ -21,9 +23,13 @@ public class MetaDataRepository {
 
     static { // init repository
         try {
+            XMLConfigLoader xcl = new XMLConfigLoader();
+            String hbaseURL = xcl.get("HBaseURL");
+
             // make sure hbase has the schema
-            HbaseAccess.init();
-            AsynchbaseAccess.init();
+            HbaseAccess.init(hbaseURL);
+            AsynchbaseAccess.init(hbaseURL);
+
             repositoryMap = new NamedPersistentMap(REPO_MAP_NAME);
         } catch (Exception e) {
             logger.error("Cannot initialize MetaDataRepository");

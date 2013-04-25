@@ -25,8 +25,9 @@ import org.slf4j.LoggerFactory;
 public class AsynchbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(AsynchbaseAccess.class);
 
-    public static final String HBASE_URL = "10.64.14.192";     // TODO: get config
-    //public static final String HBASE_URL = "localhost";
+    private static String hbaseURL = "10.64.14.192";     // get config.xml
+    //private static String hbaseURL = "localhost";
+
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
@@ -42,10 +43,11 @@ public class AsynchbaseAccess {
     private static HBaseClient client;
     static final Object lock = new Object();
 
-    public static final void init() throws Exception {
+    public static final void init(String url) throws Exception {
 
         try {
-            connect(HBASE_URL);
+            hbaseURL = url;
+            connect();
 
             // init table m with column family "cf"
             //createTableIfNotExists(METADATA_TABLE, DEFAULT_COLUMN_FAMILY);
@@ -62,8 +64,16 @@ public class AsynchbaseAccess {
 
     }
 
-    public static final void connect(String master) {
-        client = new HBaseClient(master);
+    public static final String getHBaseURL() {
+         return hbaseURL;
+    }
+
+    public static final void setHBaseURL(String url) {
+         hbaseURL = url;
+    }
+
+    public static final void connect() {
+        client = new HBaseClient(hbaseURL);
     }
 
     public static final void disconnect() throws Exception {
@@ -82,8 +92,7 @@ public class AsynchbaseAccess {
 
     // add key-val pair to METADATA_TABLE
     private static final void add(byte[] table, byte[] key, byte[] val) throws Exception {
-        PutRequest put = new PutRequest(
-                table, key, DEFAULT_CF_BYTES, DEFAULT_CF_BYTES, val);
+        PutRequest put = new PutRequest(table, key, DEFAULT_CF_BYTES, DEFAULT_CF_BYTES, val);
         Deferred<Object> d = client.put(put);
         d.join();
     }
@@ -107,6 +116,7 @@ public class AsynchbaseAccess {
         return new String(a.get(0).value());
     }
 
+    // get keys from METADATA_TABLE
     public static final Collection<String> getAllKeys() throws Exception {
         final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
         scanner.setFamily(DEFAULT_CF_BYTES);
@@ -121,6 +131,7 @@ public class AsynchbaseAccess {
         return keys;
     }
 
+    // get keys from METADATA_TABLE
     public static final Collection<String> getKeysWithPrefix(String prefix) throws Exception {
         final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
         scanner.setFamily(DEFAULT_CF_BYTES);
@@ -134,6 +145,38 @@ public class AsynchbaseAccess {
             keys.add(new String(rows.get(0).get(0).key()));
         }
         return keys;
+    }
+
+    // remove key-val pair from METADATA_TABLE
+    public static final void remove(String key) throws Exception {
+        remove(key.getBytes());
+    }
+
+    // remove key-val pair from METADATA_TABLE
+    private static final void remove(byte[] key) throws Exception {
+        remove(METADATA_TABLE_BYTES, key);
+    }
+
+    // remove key-val pair from METADATA_TABLE
+    private static final void remove(byte[] table, byte[] key) throws Exception {
+        DeleteRequest del = new DeleteRequest(table, key);
+        Deferred<Object> d = client.delete(del);
+        d.join();
+    }
+
+    // remove keys from METADATA_TABLE
+    public static final void removeKeysWithPrefix(String prefix) throws Exception {
+        final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
+        scanner.setFamily(DEFAULT_CF_BYTES);
+        scanner.setQualifier(DEFAULT_CF_BYTES);
+        scanner.setKeyRegexp("^" + prefix);
+
+        ArrayList<String> keys = new ArrayList<String>();
+        ArrayList<ArrayList<KeyValue>> rows = null;
+        ArrayList<Deferred<Boolean>> workers = new ArrayList<Deferred<Boolean>>();
+        while ((rows = scanner.nextRows(1).joinUninterruptibly()) != null) {
+            remove(METADATA_TABLE_BYTES, rows.get(0).get(0).key());
+        }
     }
 
     // get table 1 char tag for map name

@@ -26,8 +26,9 @@ public class HbaseAccess {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseAccess.class);
 
-    public static final String HBASE_URL = "10.64.14.202";     // TODO: get config
-    //public static final String HBASE_URL = "localhost";
+    private static String hbaseURL = "";     // get config.xml
+    //private static String hbaseURL = "localhost";
+
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final String MAP_ID_TABLE = "map_id";
@@ -44,18 +45,19 @@ public class HbaseAccess {
 
 
     // init connections and make sure hbase has the right schema
-    public static final void init() {
+    public static final void init(String url) {
 
         try {
-            config.set("hbase.master", HBASE_URL+":60000");   // NOT USED?????
-            //config.set("hbase.zookeeper.quorum", HBASE_URL);
-            //config.set("hbase.zookeeper.property.clientPort", "2181");
+            hbaseURL = url;
+            config.set("hbase.master", hbaseURL + ":60000");   // NOT USED?????
+            //config.xml.set("hbase.zookeeper.quorum", hbaseURL);
+            //config.xml.set("hbase.zookeeper.property.clientPort", "2181");
             // test
-            //HBaseAdmin.checkHBaseAvailable(config);
+            //HBaseAdmin.checkHBaseAvailable(config.xml);
             //System.out.println("HBase is running!");
-            //  createTable(config);
+            //  createTable(config.xml);
             //creating a new table
-            //HTable mytable = new HTable(config, "mytable");
+            //HTable mytable = new HTable(config.xml, "mytable");
             //System.out.println("Table mytable obtained ");
 
             HConnection connection = HConnectionManager.getConnection(config);
@@ -76,6 +78,14 @@ public class HbaseAccess {
             logger.error("Cannot initialize HBase access layer");
             e.printStackTrace();
         }
+    }
+
+    public static final String getHBaseURL() {
+        return hbaseURL;
+    }
+
+    public static final void setHBaseURL(String url) {
+        hbaseURL = url;
     }
 
     // add this key-value pair to METADATA_TABLE

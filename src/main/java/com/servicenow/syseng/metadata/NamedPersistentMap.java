@@ -26,7 +26,7 @@ public class NamedPersistentMap {
     //private Class dataAccess = AsynchbaseAccess.class;
 
 
-    // create a NamedPersistentMap object referencing to corresponding habse representation
+    // create a NamedPersistentMap object referencing to corresponding hbase representation
     // if no corresponding hbase representation exists, create one in hbase
     public NamedPersistentMap(String name) throws IOException {
         this.name = name;
