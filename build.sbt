@@ -22,8 +22,8 @@ libraryDependencies ++= Seq(
 // disable using the Scala version in output paths and artifacts
 crossPaths := false
 
-publishTo := Some(Resolver.file("file",  new File( "/Users/chi.yao/.ivy2/local/" )) )
-//publishTo := Some("snc-lab-snapshot" at "http://10.196.32.21:8081/nexus/content/repositories/snapshots/" )
+//publishTo := Some(Resolver.file("file",  new File( "/Users/chi.yao/.ivy2/local/" )) )
+publishTo := Some("snc-lab-snapshot" at "http://10.196.32.21:8081/nexus/content/repositories/snapshots/" )
 
 publishMavenStyle := true
 

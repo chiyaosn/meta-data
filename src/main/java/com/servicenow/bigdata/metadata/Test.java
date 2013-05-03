@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 /**
  * Created with IntelliJ IDEA.
@@ -38,16 +38,16 @@ public class Test {
         }*/
 
         //System.out.println(AsynchbaseAccess.get("h1-m2"));
-        ArrayList<String> keysAsync = (ArrayList<String>) AsynchbaseAccess.getKeysWithPrefix("h2-");
+        /*ArrayList<String> keysAsync = (ArrayList<String>) AsynchbaseAccess.getKeysWithPrefix("h2-");
         for(String key : keysAsync) {
             System.out.println(key);
         }
         System.out.println("Total number of keys = " + keysAsync.size());
         long endTimeAsync   = System.currentTimeMillis();
         long totalTimeAsync = endTimeAsync - startTimeAsync;
-        System.out.println("Asynchbase read total time = " + totalTimeAsync + "ms");
+        System.out.println("Asynchbase read total time = " + totalTimeAsync + "ms");*/
 
-        //AsynchbaseAccess.removeKeysWithPrefix("h1-");
+        //AsynchbaseAccess.removeKeysWithPrefix("3");
 
         AsynchbaseAccess.disconnect();
 

@@ -8,8 +8,8 @@ package com.servicenow.bigdata.multidimension;
  * To change this template use File | Settings | File Templates.
  */
 
-import com.servicenow.syseng.metadata.MetaDataRepository;
-import com.servicenow.syseng.metadata.NamedPersistentMap;
+import com.servicenow.bigdata.metadata.MetaDataRepository;
+import com.servicenow.bigdata.metadata.NamedPersistentMap;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -76,18 +76,18 @@ public class Outline {
      */
     public final void addDimension(String dimensionName) throws IOException {
         if (getDimension(name)==null) {
-            namedPersistentMap.addValue(dimensionName,""); // dimensionName is the key (TODO: REVIEW)
+            namedPersistentMap.addKeyMetric(dimensionName,""); // dimensionName is the key (TODO: REVIEW)
         }
     }
 
     public final void addDimensionMember(String dimension, String member) throws IOException {
-        namedPersistentMap.addValue(dimension,member);
+        namedPersistentMap.addKeyMetric(dimension,member);
     }
 
 
     // support only one main dimension now
     public final void setMainDimension(String name) throws IOException {
-        namedPersistentMap.addValue("<main-dimension>",name);
+        namedPersistentMap.addKeyMetric("<main-dimension>",name);
     }
 
     public final String getMainDimensionName() throws IOException {

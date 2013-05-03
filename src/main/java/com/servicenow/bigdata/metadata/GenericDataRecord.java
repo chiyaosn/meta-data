@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 /**
  * Created with IntelliJ IDEA.

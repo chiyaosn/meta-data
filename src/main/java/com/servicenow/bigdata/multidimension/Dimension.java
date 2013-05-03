@@ -10,7 +10,7 @@ package com.servicenow.bigdata.multidimension;
 
 import java.util.Collection;
 import java.io.IOException;
-import com.servicenow.syseng.metadata.NamedPersistentMap;
+import com.servicenow.bigdata.metadata.NamedPersistentMap;
 
 /**
  *  implemented by NamedPersistentMap

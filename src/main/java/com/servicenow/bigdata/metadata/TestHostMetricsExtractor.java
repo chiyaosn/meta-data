@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 /**
  * Created with IntelliJ IDEA.
@@ -7,8 +7,6 @@ package com.servicenow.syseng.metadata;
  * Time: 2:30 PM
  * To change this template use File | Settings | File Templates.
  */
-
-import com.servicenow.syseng.datamodel.CanonicalMetrics;
 
 public class TestHostMetricsExtractor extends MetaDataExtractor {
 

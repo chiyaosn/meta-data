@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +24,7 @@ public abstract class MetaDataExtractor {
 
     private final String name = this.getClass().getName();
     private String mapName = "map-for-"+name;
-    private static HashMap<String,HashSet<String>> allCaches = new HashMap<String,HashSet<String>>();
+    private static HashMap<String, HashSet<String>> allCaches = new HashMap<String, HashSet<String>>();
 
     public MetaDataExtractor(String mapName) {
         this.mapName = mapName;
@@ -40,7 +40,7 @@ public abstract class MetaDataExtractor {
         HashSet<String> cache = allCaches.get(name);
         if (cache==null) {
             cache = new HashSet<String>();
-            allCaches.put(name,cache);
+            allCaches.put(name, cache);
         }
         String s = new StringBuilder(pair.key).append("##").append(pair.value).toString();
         if (cache.contains(s)) {

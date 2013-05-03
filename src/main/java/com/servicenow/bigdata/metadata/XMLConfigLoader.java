@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

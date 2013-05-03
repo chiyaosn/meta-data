@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,15 +45,6 @@ public class AsynchbaseAccess {
         try {
             hbaseURL = url;
             connect();
-
-            // init table m with column family "cf"
-            //createTableIfNotExists(METADATA_TABLE, DEFAULT_COLUMN_FAMILY);
-            // init table map_id with column family "cf"
-            //createTableIfNotExists(MAP_ID_TABLE, DEFAULT_COLUMN_FAMILY);
-            // add record ("<map_sequence>", "cf", "c", 1) to MAP_ID_TABLE
-            //addValue(MAP_ID_TABLE, MAP_SEQUENCE, ByteBuffer.allocate(8).putLong(1L).array());
-            // add record ("m", "cf", "c", 0) to MAP_ID_TABLE
-            //addValue(MAP_ID_TABLE, METADATA_TABLE, ByteBuffer.allocate(8).putLong(0L).array());
         } catch (Exception e) {
             logger.error("Asynchbase: Cannot initialize Hbase database");
             disconnect();
@@ -165,7 +156,7 @@ public class AsynchbaseAccess {
     public static final void removeKeysWithPrefix(String prefix) throws Exception {
         final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
         scanner.setFamily(DEFAULT_CF_BYTES);
-        scanner.setQualifier(DEFAULT_CF_BYTES);
+        scanner.setQualifier(DEFAULT_COL_BYTES);
         scanner.setKeyRegexp("^" + prefix);
 
         ArrayList<String> keys = new ArrayList<String>();
@@ -184,7 +175,8 @@ public class AsynchbaseAccess {
             long id = client.atomicIncrement(new AtomicIncrementRequest(MAP_ID_TABLE_BYTES, MAP_SEQUENCE_BYTES, DEFAULT_CF_BYTES, DEFAULT_COL_BYTES)).join() - 1;
 
             // assuming id <= 26 so that we can use single char tags
-            tag = String.valueOf((char)(id));
+            //tag = String.valueOf((char)('a' + id));
+            tag = Long.toString(id);
 
             // add this name-tag pair to map_id table
             addValue(MAP_ID_TABLE_BYTES, mapIDName.getBytes(), tag.getBytes());

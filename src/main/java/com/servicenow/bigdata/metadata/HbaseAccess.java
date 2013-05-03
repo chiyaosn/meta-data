@@ -1,4 +1,4 @@
-package com.servicenow.syseng.metadata;
+package com.servicenow.bigdata.metadata;
 
 /**
  * Created with IntelliJ IDEA.
@@ -193,7 +193,8 @@ public class HbaseAccess {
             long id = htable.incrementColumnValue(MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,1) - 1;
 
             // assuming id <= 26 so that we can use single char tags
-            tag = String.valueOf((char)(id));
+            //tag = String.valueOf((char)('a' + id));
+            tag = Long.toString(id);
 
             // add this name-tag pair to map_id table
             Put put = new Put(mapIDName.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,tag.getBytes());
