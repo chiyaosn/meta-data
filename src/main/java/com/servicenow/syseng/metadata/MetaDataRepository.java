@@ -27,7 +27,7 @@ public class MetaDataRepository {
             String hbaseURL = xcl.get("HBaseURL");
 
             // make sure hbase has the schema
-            HbaseAccess.init(hbaseURL);
+            //HbaseAccess.init(hbaseURL);
             AsynchbaseAccess.init(hbaseURL);
 
             repositoryMap = new NamedPersistentMap(REPO_MAP_NAME);
@@ -39,7 +39,8 @@ public class MetaDataRepository {
     // get the NamedPersistentMap called name
     // if not exists yet, create one and return
     public static NamedPersistentMap getNamedPersistentMap(String name) throws IOException {
-        if (repositoryMap.getValue(name).isEmpty()) { // add to repositoryMap if not exists
+        Collection<String> metrics = repositoryMap.getMetrics(name);
+        if (metrics == null) { // add to repositoryMap if not exists
             createNamedPersistentMap(name);
         }
         return new NamedPersistentMap(name);
@@ -47,21 +48,21 @@ public class MetaDataRepository {
 
 
     // get all NamedPersistentMap names
-    public static Collection<String> getAllNamedPersistentMapNames() throws IOException {
-	return repositoryMap.keys();
-    }
+    /*public static Collection<String> getAllNamedPersistentMapNames() throws IOException {
+	    return repositoryMap.getAllKeys();
+    }*/
 
 
     // create a new NamedPersistentMap called name
     private static final void createNamedPersistentMap(String name) throws IOException {
-	    repositoryMap.addValue(name,name);
+	    repositoryMap.addValue(name, name);
     }
 
 
     // add to a NamedPersistentMap a new key-value pair (extacted from cm via extractor)
     // if the NamedPersistentMap does not exist, create one first
-    public static final void addMetaData(MetaDataExtractor extractor, CanonicalMetrics cm) throws IOException {
-        MetaDataExtractor.KeyValuePair pair = extractor.extract(cm);
+    public static final void addMetaData(MetaDataExtractor extractor, GenericDataRecord rec) throws IOException {
+        MetaDataExtractor.KeyValuePair pair = extractor.extract(rec);
         if (!extractor.exists(pair)) {   // add to persistent map if not yet done
             NamedPersistentMap map = getNamedPersistentMap(extractor.getMapName());
             map.addValue(pair.key,pair.value);
@@ -76,7 +77,7 @@ public class MetaDataRepository {
             NamedPersistentMap hostMetricsMap = new NamedPersistentMap("host-metrics");
             hostMetricsMap.addValue("host1","xmlstats.transaction.count");
             hostMetricsMap.addValue("host1","xmlstats.transaction.avg");
-            Collection<String> metrics = hostMetricsMap.getValue("host1");
+            Collection<String> metrics = hostMetricsMap.getMetrics("host1");
             System.out.println("Host host1 has metrics:");
             for (String m:metrics) {
                 System.out.print(m+" ");
@@ -86,7 +87,7 @@ public class MetaDataRepository {
             NamedPersistentMap dataCenterHostsMap = new NamedPersistentMap("datacenter-hosts");
             dataCenterHostsMap.addValue("iad2","host1");
             dataCenterHostsMap.addValue("iad2","host2");
-            Collection<String> hosts = dataCenterHostsMap.getValue("iad1");
+            Collection<String> hosts = dataCenterHostsMap.getMetrics("iad1");
             System.out.println("Data center iad1 has hosts:");
             for (String h:hosts) {
                 System.out.print(h+" ");
@@ -108,7 +109,7 @@ public class MetaDataRepository {
             // test extractor
             MetaDataExtractor extractor = new TestHostMetricsExtractor();
             // extact and add meta data
-            addMetaData(extractor,cm);
+            //addMetaData(extractor,cm);
 
             System.exit(0);
 

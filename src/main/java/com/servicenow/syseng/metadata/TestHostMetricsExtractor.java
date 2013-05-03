@@ -12,9 +12,10 @@ import com.servicenow.syseng.datamodel.CanonicalMetrics;
 
 public class TestHostMetricsExtractor extends MetaDataExtractor {
 
-    public final KeyValuePair extract(CanonicalMetrics cm) {
-        String host = cm.fqdn;
-        String metrics = cm.metricName;
+    public final KeyValuePair extract(GenericDataRecord rec) {
+        // do nothing now
+        String host = "fqdn";
+        String metrics = "metrics";
         return new KeyValuePair(host,metrics);
     }
 

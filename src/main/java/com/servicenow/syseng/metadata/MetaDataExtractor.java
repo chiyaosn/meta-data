@@ -8,7 +8,6 @@ package com.servicenow.syseng.metadata;
  * To change this template use File | Settings | File Templates.
  */
 
-import com.servicenow.syseng.datamodel.CanonicalMetrics;
 import java.util.HashSet;
 import java.util.HashMap;
 
@@ -32,7 +31,7 @@ public abstract class MetaDataExtractor {
     }
 
     // extract key-value metadata from the canonical metrics record
-    abstract KeyValuePair extract(CanonicalMetrics cm);
+    abstract KeyValuePair extract(GenericDataRecord genericDataRecord);
 
     // add the pair in cache if not exists
     // return whether it exists before caching

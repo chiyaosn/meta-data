@@ -31,7 +31,9 @@ public class HbaseAccess {
 
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
+    private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
     private static final String MAP_ID_TABLE = "map_id";
+    private static final byte[] MAP_ID_TABLE_BYTES = MAP_ID_TABLE.getBytes();
     private static final String DEFAULT_COLUMN_FAMILY = "cf"; // so far all tables use this column family only
     private static final byte[] DEFAULT_CF_BYTES = DEFAULT_COLUMN_FAMILY.getBytes();
     private static final String DEFAULT_COLUMN = "c"; // so far all tables use this column only
@@ -72,7 +74,7 @@ public class HbaseAccess {
             // add record ("<map_sequence>","cf","c",0) to MAP_ID_TABLE
             // <map_sequence>'s value is the current count of maps
             if (!rowExists(MAP_ID_TABLE,MAP_SEQUENCE)) {
-                add(MAP_ID_TABLE,MAP_SEQUENCE,ByteBuffer.allocate(8).putLong(0L).array());
+                addValue(MAP_ID_TABLE,MAP_SEQUENCE,ByteBuffer.allocate(8).putLong(0L).array());
             }
 
         } catch (Exception e) {
@@ -90,8 +92,20 @@ public class HbaseAccess {
     }
 
     // add this key-value pair to METADATA_TABLE
-    public static final void add(String key, String val) throws IOException {
-        add(METADATA_TABLE,key,val);
+    public static final void addValue(String key, String val) throws IOException {
+        addValue(METADATA_TABLE,key,val);
+    }
+
+    // add key-val pair to table
+    private static final void addValue(String table, String key, String val) throws IOException {
+        addValue(table,key,val.getBytes());
+    }
+
+    // add key-val pair to table
+    private static final void addValue(String table, String key, byte[] val) throws IOException {
+        HTableInterface htable = htablePool.getTable(table);
+        htable.setAutoFlush(true); // TODO: to optimize
+        htable.put(new Put(key.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,val));
     }
 
     // has row of the given name
@@ -142,18 +156,6 @@ public class HbaseAccess {
         return new Scan(beginRow,endRow);
     }
 
-    // add key-val pair to table
-    private static final void add(String table, String key, String val) throws IOException {
-        add(table,key,val.getBytes());
-    }
-
-    // add key-val pair to table
-    private static final void add(String table, String key, byte[] val) throws IOException {
-        HTableInterface htable = htablePool.getTable(table);
-        htable.setAutoFlush(true); // TODO: to optimize
-        htable.put(new Put(key.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,val));
-    }
-
     private static final void createTableIfNotExists(String table, String columnFamily) throws IOException {
         if (!admin.tableExists(table)) {
             HTableDescriptor td = new HTableDescriptor(table);
@@ -169,12 +171,12 @@ public class HbaseAccess {
     // get val for key from table
     // return "" if no value for the key or no such table
     // TODO: is "" better than null?
-    private static final String get(String table, String key) throws IOException {
+    private static final String getValue(String table, String key) throws IOException {
         HTableInterface htable = htablePool.getTable(table);
         htable.setAutoFlush(true); // TODO: to optimize
         Result rs = htable.get(new Get(key.getBytes()));
         if (rs.isEmpty()) {
-            return "";
+            return null;
         }
         else {
             byte[] v = rs.getValue(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES);
@@ -184,15 +186,17 @@ public class HbaseAccess {
 
     // get table 1 char tag for map name
     // if name does not exist, create tag for it
-    public static final String getMapTag(String name) throws IOException {
-        String tag = get(MAP_ID_TABLE,name);
-        if (tag==null || tag.equals("")) {
+    public static final String getMapTag(String mapIDName) throws IOException {
+        String tag = getValue(MAP_ID_TABLE,mapIDName);
+        if (tag == null || tag.equals("")) {
             HTableInterface htable = htablePool.getTable(MAP_ID_TABLE);
-            long id = htable.incrementColumnValue(MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,1)-1;
+            long id = htable.incrementColumnValue(MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,1) - 1;
+
             // assuming id <= 26 so that we can use single char tags
-            tag = String.valueOf((char)('a'+id));
+            tag = String.valueOf((char)(id));
+
             // add this name-tag pair to map_id table
-            Put put = new Put(name.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,tag.getBytes());
+            Put put = new Put(mapIDName.getBytes()).add(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES,tag.getBytes());
             htable.put(put);
         }
         return tag;

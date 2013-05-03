@@ -8,13 +8,10 @@ package com.servicenow.syseng.metadata;
  * To change this template use File | Settings | File Templates.
  */
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.client.Put;
 import org.hbase.async.*;
 
 import com.stumbleupon.async.Callback;
@@ -25,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class AsynchbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(AsynchbaseAccess.class);
 
-    private static String hbaseURL = "10.64.14.192";     // get config.xml
+    private static String hbaseURL = "";     // get config.xml
     //private static String hbaseURL = "localhost";
 
     // all meta data live in one table
@@ -54,9 +51,9 @@ public class AsynchbaseAccess {
             // init table map_id with column family "cf"
             //createTableIfNotExists(MAP_ID_TABLE, DEFAULT_COLUMN_FAMILY);
             // add record ("<map_sequence>", "cf", "c", 1) to MAP_ID_TABLE
-            //add(MAP_ID_TABLE, MAP_SEQUENCE, ByteBuffer.allocate(8).putLong(1L).array());
+            //addValue(MAP_ID_TABLE, MAP_SEQUENCE, ByteBuffer.allocate(8).putLong(1L).array());
             // add record ("m", "cf", "c", 0) to MAP_ID_TABLE
-            //add(MAP_ID_TABLE, METADATA_TABLE, ByteBuffer.allocate(8).putLong(0L).array());
+            //addValue(MAP_ID_TABLE, METADATA_TABLE, ByteBuffer.allocate(8).putLong(0L).array());
         } catch (Exception e) {
             logger.error("Asynchbase: Cannot initialize Hbase database");
             disconnect();
@@ -65,11 +62,11 @@ public class AsynchbaseAccess {
     }
 
     public static final String getHBaseURL() {
-         return hbaseURL;
+        return hbaseURL;
     }
 
     public static final void setHBaseURL(String url) {
-         hbaseURL = url;
+        hbaseURL = url;
     }
 
     public static final void connect() {
@@ -81,37 +78,37 @@ public class AsynchbaseAccess {
     }
 
     // add key-val pair to METADATA_TABLE
-    public static final void add(String key, String val) throws Exception {
-        add(key.getBytes(), val.getBytes());
+    public static final void addValue(String key, String val) throws Exception {
+        addValue(key.getBytes(), val.getBytes());
     }
 
     // add key-val pair to METADATA_TABLE
-    private static final void add(byte[] key, byte[] val) throws Exception {
-        add(METADATA_TABLE_BYTES,key,val);
+    private static final void addValue(byte[] key, byte[] val) throws Exception {
+        addValue(METADATA_TABLE_BYTES,key,val);
     }
 
     // add key-val pair to METADATA_TABLE
-    private static final void add(byte[] table, byte[] key, byte[] val) throws Exception {
-        PutRequest put = new PutRequest(table, key, DEFAULT_CF_BYTES, DEFAULT_CF_BYTES, val);
+    private static final void addValue(byte[] table, byte[] key, byte[] val) throws Exception {
+        PutRequest put = new PutRequest(table, key, DEFAULT_CF_BYTES, DEFAULT_COL_BYTES, val);
         Deferred<Object> d = client.put(put);
         d.join();
     }
 
     // get value from METADATA_TABLE
-    public static final String get(String key) throws Exception {
-        return get(METADATA_TABLE,key);
+    public static final String getValue(String key) throws Exception {
+        return getValue(METADATA_TABLE, key);
     }
 
-    public static final String get(String table, String key) throws Exception {
-        return get(table, key.getBytes());
+    public static final String getValue(String table, String key) throws Exception {
+        return getValue(table, key.getBytes());
     }
 
     // get value from METADATA_TABLE
-    private static final String get(String table, byte[] key) throws Exception {
+    private static final String getValue(String table, byte[] key) throws Exception {
         GetRequest get = new GetRequest(table, key);
         ArrayList<KeyValue> a = client.get(get).join();
         if (a.isEmpty()) {
-            return "";
+            return null;
         }
         return new String(a.get(0).value());
     }
@@ -120,7 +117,7 @@ public class AsynchbaseAccess {
     public static final Collection<String> getAllKeys() throws Exception {
         final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
         scanner.setFamily(DEFAULT_CF_BYTES);
-        scanner.setQualifier(DEFAULT_CF_BYTES);
+        scanner.setQualifier(DEFAULT_COL_BYTES);
 
         ArrayList<String> keys = new ArrayList<String>();
         ArrayList<ArrayList<KeyValue>> rows = null;
@@ -135,7 +132,7 @@ public class AsynchbaseAccess {
     public static final Collection<String> getKeysWithPrefix(String prefix) throws Exception {
         final Scanner scanner = client.newScanner(METADATA_TABLE_BYTES);
         scanner.setFamily(DEFAULT_CF_BYTES);
-        scanner.setQualifier(DEFAULT_CF_BYTES);
+        scanner.setQualifier(DEFAULT_COL_BYTES);
         scanner.setKeyRegexp("^" + prefix);
 
         ArrayList<String> keys = new ArrayList<String>();
@@ -181,15 +178,16 @@ public class AsynchbaseAccess {
 
     // get table 1 char tag for map name
     // if name does not exist, create tag for it
-    public static final String getMapTag(String name) throws Exception {
-        String tag = get(MAP_ID_TABLE,name);
-        if (tag==null || tag.equals("")) {
-            long id = client.atomicIncrement(new AtomicIncrementRequest(
-                    MAP_ID_TABLE_BYTES,MAP_SEQUENCE_BYTES,DEFAULT_CF_BYTES,DEFAULT_COL_BYTES)).join()-1;
+    public static final String getMapTag(String mapIDName) throws Exception {
+        String tag = getValue(MAP_ID_TABLE, mapIDName);
+        if (tag == null || tag.equals("")) {
+            long id = client.atomicIncrement(new AtomicIncrementRequest(MAP_ID_TABLE_BYTES, MAP_SEQUENCE_BYTES, DEFAULT_CF_BYTES, DEFAULT_COL_BYTES)).join() - 1;
+
             // assuming id <= 26 so that we can use single char tags
-            tag = String.valueOf((char)('a'+id));
+            tag = String.valueOf((char)(id));
+
             // add this name-tag pair to map_id table
-            add(MAP_ID_TABLE_BYTES, name.getBytes(), tag.getBytes());
+            addValue(MAP_ID_TABLE_BYTES, mapIDName.getBytes(), tag.getBytes());
         }
         return tag;
     }
