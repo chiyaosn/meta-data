@@ -36,7 +36,7 @@ public class Dimension {
     }
 
     public final void addMember(String memberName) throws IOException {
-        outline.addDimensionMember(name, memberName);
+        outline.addDimensionMember(name,memberName);
     }
 
     /**

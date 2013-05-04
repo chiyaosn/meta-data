@@ -8,11 +8,11 @@ package com.servicenow.bigdata.multidimension;
  * To change this template use File | Settings | File Templates.
  */
 
-import com.servicenow.bigdata.metadata.MetaDataRepository;
 import com.servicenow.bigdata.metadata.NamedPersistentMap;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 /**
@@ -21,18 +21,16 @@ import java.util.ArrayList;
  */
 
 public class Outline {
-
-
     private String name;
-    private String tag;
+    private String mapIDName;
     private NamedPersistentMap namedPersistentMap;
     private String mainDimension=null;
 
 
     public Outline(String name) throws IOException {
         this.name = name;
-        tag = "outline."+name;
-        this.namedPersistentMap = new NamedPersistentMap(tag);
+        mapIDName = "outline."+name;
+        this.namedPersistentMap = new NamedPersistentMap(mapIDName);
     }
 
     public final String getName() {
@@ -56,11 +54,12 @@ public class Outline {
      * @return collection of all dimension names
      * @throws IOException
      */
+    // TODO: This is a very heavy operation.
     public final Collection<String> getDimensionNames() throws IOException {
-        Collection<String> all = namedPersistentMap.getAllKeys();
+        Collection<String> allKeys = namedPersistentMap.getAllKeys();
         // remove <main-dimension> from the result set
         Collection<String> result = new ArrayList<String>();
-        for (String s:all) {
+        for (String s: allKeys) {
             if (!s.equals("<main-dimension>")) {
                 result.add(s);
             }
@@ -76,11 +75,13 @@ public class Outline {
      */
     public final void addDimension(String dimensionName) throws IOException {
         if (getDimension(name)==null) {
-            namedPersistentMap.addKeyMetric(dimensionName,""); // dimensionName is the key (TODO: REVIEW)
+            // <tag>_<dimensionName>
+            namedPersistentMap.addKey(dimensionName); // dimensionName is the key (TODO: REVIEW)
         }
     }
 
     public final void addDimensionMember(String dimension, String member) throws IOException {
+        // <tag>_<dimensionName>##<member>
         namedPersistentMap.addKeyMetric(dimension,member);
     }
 
@@ -139,13 +140,13 @@ public class Outline {
 
             // show sample usage
 
-            Outline ol = new Outline("Usage Stats");
-            ol.addDimension("User");
-            ol.addDimension("Application");
-            ol.addDimension("Table");
-            ol.addDimension("Operation");
-            ol.addDimension("Instance");
-            ol.setMainDimension("Instance");
+            Outline ol = new Outline("usageStats");
+            ol.addDimension("user");
+            ol.addDimension("application");
+            ol.addDimension("table");
+            ol.addDimension("operation");
+            ol.addDimension("instance");
+            ol.setMainDimension("instance");
 
         } catch (Exception e) {
             e.printStackTrace();
