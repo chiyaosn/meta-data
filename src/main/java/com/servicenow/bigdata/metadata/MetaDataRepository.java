@@ -10,6 +10,7 @@ public class MetaDataRepository {
 
     public static final String REPO_MAP_NAME = "repository";
     private static final Logger logger = LoggerFactory.getLogger(MetaDataRepository.class);
+    private static String hbaseURL = "";
 
     // repositoryMap stores the map for all NamedPersistentMap including itself
     private static NamedPersistentMap repositoryMap;
@@ -17,8 +18,9 @@ public class MetaDataRepository {
 
     static { // init repository
         try {
-            XMLConfigLoader xcl = new XMLConfigLoader();
-            String hbaseURL = xcl.get("HBaseURL");
+            //XMLConfigLoader xcl = new XMLConfigLoader();
+            //hbaseURL = xcl.get("HBaseURL");
+            hbaseURL = "10.64.14.202";
 
             // make sure hbase has the schema
             //HbaseAccess.init(hbaseURL);
