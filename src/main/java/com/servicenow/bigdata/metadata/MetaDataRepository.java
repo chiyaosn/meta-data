@@ -1,7 +1,8 @@
 package com.servicenow.bigdata.metadata;
-import java.io.FileInputStream;
+
 import java.util.*;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ public class MetaDataRepository {
 
     // repositoryMap stores the map for all NamedPersistentMap including itself
     private static NamedPersistentMap repositoryMap;
-    private static HashMap<String, NamedPersistentMap> allMaps = new HashMap<>();
+    private static ConcurrentHashMap<String, NamedPersistentMap> allMaps = new ConcurrentHashMap<>();
 
     static { // init repository
         try {
@@ -38,7 +39,7 @@ public class MetaDataRepository {
 
     public static void addMap(String mapIDName) throws IOException {
         NamedPersistentMap map = new NamedPersistentMap(mapIDName);
-        allMaps.put(mapIDName, map);
+        allMaps.putIfAbsent(mapIDName, map);
     }
 
     public static NamedPersistentMap getMap(String mapIDName) throws IOException {
@@ -63,6 +64,11 @@ public class MetaDataRepository {
             MetaDataRepository.getMap("metric-" + "app").addKeyMetric("usageStats.instance01.select-count", "app03");
 
             Collection<String> c = MetaDataRepository.getMap("metric-" + "table").getMetrics("usageStats.instance01.select-count");
+            for(String k : c) {
+                System.out.println(k);
+            }
+
+            c = MetaDataRepository.getMap("namespace-metric").getMetrics("usageStats");
             for(String k : c) {
                 System.out.println(k);
             }
