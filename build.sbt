@@ -19,6 +19,8 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.1.4",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.4",
   "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
+
+
   // TODO : add hadoop libraries
 )
 
