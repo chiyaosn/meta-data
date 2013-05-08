@@ -1,4 +1,8 @@
-organization := "com.servicenow.syseng"
+import AssemblyKeys._
+
+seq(assemblySettings: _*)
+
+organization := "com.servicenow.bigdata"
 
 name := "meta-data"
 
@@ -15,9 +19,14 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.1.4",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.4",
   "com.fasterxml.jackson.module" % "jackson-module-scala_2.9.2" % "2.1.3"
-  //"com.servicenow.syseng" % "data-model" % "1.0-SNAPSHOT"  
   // TODO : add hadoop libraries
 )
+
+artifact in (Compile, assembly) ~= { art =>
+  art.copy(`classifier` = Some("assembly"))
+}
+
+addArtifact(artifact in (Compile, assembly), assembly)
 
 // disable using the Scala version in output paths and artifacts
 crossPaths := false
