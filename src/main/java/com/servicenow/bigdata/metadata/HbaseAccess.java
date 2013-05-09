@@ -26,9 +26,6 @@ public class HbaseAccess {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseAccess.class);
 
-    private static String hbaseURL = "";     // get config.xml
-    //private static String hbaseURL = "localhost";
-
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
@@ -47,7 +44,7 @@ public class HbaseAccess {
 
 
     // init connections and make sure hbase has the right schema
-    public static final void init(String url) {
+    public static final void init(String hbaseURL) {
 
         try {
             config.set("hbase.master", hbaseURL+":60000");   // NOT USED?????
@@ -81,14 +78,6 @@ public class HbaseAccess {
             logger.error("Cannot initialize HBase access layer");
             e.printStackTrace();
         }
-    }
-
-    public static final String getHBaseURL() {
-        return hbaseURL;
-    }
-
-    public static final void setHBaseURL(String url) {
-        hbaseURL = url;
     }
 
     // add this key-value pair to METADATA_TABLE

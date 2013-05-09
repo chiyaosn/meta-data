@@ -22,9 +22,6 @@ import org.slf4j.LoggerFactory;
 public class AsynchbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(AsynchbaseAccess.class);
 
-    private static String hbaseURL = "";     // get config.xml
-    //private static String hbaseURL = "localhost";
-
     // all meta data live in one table
     private static final String METADATA_TABLE = "m";
     private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
@@ -40,11 +37,10 @@ public class AsynchbaseAccess {
     private static HBaseClient client;
     static final Object lock = new Object();
 
-    public static final void init(String url) throws Exception {
+    public static final void init(String hbaseURL) throws Exception {
 
         try {
-            hbaseURL = url;
-            connect();
+            connect(hbaseURL);
         } catch (Exception e) {
             logger.error("Asynchbase: Cannot initialize Hbase database");
             disconnect();
@@ -52,15 +48,7 @@ public class AsynchbaseAccess {
 
     }
 
-    public static final String getHBaseURL() {
-        return hbaseURL;
-    }
-
-    public static final void setHBaseURL(String url) {
-        hbaseURL = url;
-    }
-
-    public static final void connect() {
+    public static final void connect(String hbaseURL) {
         client = new HBaseClient(hbaseURL);
     }
 
