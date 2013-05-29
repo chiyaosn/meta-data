@@ -1,11 +1,17 @@
 
 package com.servicenow.bigdata.metadata;
+<<<<<<< HEAD
 import java.sql.Timestamp;
 import java.util.*;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.FileReader;
 import java.io.BufferedReader;
+=======
+import java.util.Collection;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
 
 /**
  * MetaDataRepository helps you find:
@@ -25,7 +31,11 @@ public class MetaDataRepository {
     public static class NamedPersistentMapPool {
         static ConcurrentHashMap<String,NamedPersistentMap> pool = new ConcurrentHashMap<String,NamedPersistentMap>();
         static NamedPersistentMap get(String name) throws IOException {
+<<<<<<< HEAD
             if (!pool.contains(name)) {
+=======
+            if (!pool.containsKey(name)) {
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
                 pool.put(name,new NamedPersistentMap(name));
             }
             return pool.get(name);
@@ -33,7 +43,11 @@ public class MetaDataRepository {
     }
 
     public static final String genKeyInstanceTag(String key,String instanceId) {
+<<<<<<< HEAD
         return new StringBuffer(key).append("@@").append(instanceId).toString();
+=======
+        return new StringBuffer(key).append(NamedPersistentMap.KEY_INSTANCE_SEPARATOR).append(instanceId).toString();
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 
@@ -59,6 +73,7 @@ public class MetaDataRepository {
      *  If instanceId is null, return global (all-instance) lookup result
      */
     public static final Collection<String> getValues(String nameSpace, String key, String instanceId) throws IOException {
+<<<<<<< HEAD
         if (nameSpace==null) {
             throw new IOException("Cannot get values from MetaDataRepository for null nameSpace");
         }
@@ -71,6 +86,9 @@ public class MetaDataRepository {
         else {
             return new NamedPersistentMap(nameSpace).getValues(genKeyInstanceTag(key,instanceId));
         }
+=======
+	    return new NamedPersistentMap(nameSpace).getValues(genKeyInstanceTag(key,instanceId));
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 
@@ -78,20 +96,28 @@ public class MetaDataRepository {
      * return the keys in this name space
      */
     public static final Collection<String> getKeys(String nameSpace) throws IOException {
+<<<<<<< HEAD
         if (nameSpace==null) {
             throw new IOException("Cannot get values from MetaDataRepository for null nameSpace");
         }
         return new NamedPersistentMap(NAMESPACE_KEYS).getValues(nameSpace);
+=======
+	return new NamedPersistentMap(NAMESPACE_KEYS).getValues(nameSpace);
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
     /**
      * return the instances in this name space
      */
     public static final Collection<String> getInstances(String nameSpace) throws IOException {
+<<<<<<< HEAD
         if (nameSpace==null) {
             throw new IOException("Cannot get values from MetaDataRepository for null nameSpace");
         }
         return new NamedPersistentMap(NAMESPACE_INSTANCES).getValues(nameSpace);
+=======
+	return new NamedPersistentMap(NAMESPACE_INSTANCES).getValues(nameSpace);
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 
@@ -100,7 +126,11 @@ public class MetaDataRepository {
      */
     public static final Collection<String> getNameSpaces() throws IOException {
         // go to persistent store directly
+<<<<<<< HEAD
 	    return new NamedPersistentMap(NAMESPACE).getValues(NAMESPACE);
+=======
+	return new NamedPersistentMap(NAMESPACE).getValues(NAMESPACE);
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 
@@ -137,6 +167,7 @@ public class MetaDataRepository {
 
 
     public static final void main(String[] args)  {
+<<<<<<< HEAD
         BufferedReader br = null;
         try{
             String filepath = "/tmp/";
@@ -210,6 +241,32 @@ public class MetaDataRepository {
 //                }
 //            }
 //        } catch (Exception e) {e.printStackTrace();}
+=======
+
+        try {
+            add("UsageAnalytics", "User", "Chris", "i01");
+            add("UsageAnalytics", "User", "Kevin", "i02");
+            add("UsageAnalytics", "Table", "Syslog", "i01");
+            add("UsageAnalytics", "Application", "ContentManagement", "i01");
+            add("UsageAnalytics", "Application", "ConferenceRoomBooking", "i02");
+
+            System.out.println("Namespaces: ");
+            for (String ns: getNameSpaces()) {
+                System.out.println("--"+ns);
+                System.out.println("----Instances: ");
+                for (String i: getInstances(ns)) {
+                    System.out.println("------"+i);
+                    for (String k: getKeys(ns)) {
+                        for (String v: getValues(ns,k,i)) {
+                            System.out.println("        "+k+"="+v);
+                        }
+                    }
+                }
+            }
+
+            System.exit(0);
+        } catch (Exception e) {e.printStackTrace();}
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 }

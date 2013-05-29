@@ -27,11 +27,18 @@ public class HbaseAccess {
     private static final Logger logger = LoggerFactory.getLogger(HbaseAccess.class);
 
     // all meta data live in one table
+<<<<<<< HEAD:src/main/java/com/servicenow/bigdata/metadata/HbaseAccess.java
     private static final String WAREHOUSE_TABLE = "w";
     private static String METADATA_TABLE = "m";
     private static byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
     private static String MAP_ID_TABLE = "map_id";
     private static byte[] MAP_ID_TABLE_BYTES = MAP_ID_TABLE.getBytes();
+=======
+    private static final String METADATA_TABLE = "m";
+    private static final byte[] METADATA_TABLE_BYTES = METADATA_TABLE.getBytes();
+    private static final String MAP_ID_TABLE = "map_id";
+    private static final byte[] MAP_ID_TABLE_BYTES = MAP_ID_TABLE.getBytes();
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11:src/main/java/com/servicenow/bigdata/metadata/HbaseAccess.java
     private static final String DEFAULT_COLUMN_FAMILY = "cf"; // so far all tables use this column family only
     private static final byte[] DEFAULT_CF_BYTES = DEFAULT_COLUMN_FAMILY.getBytes();
     private static final String DEFAULT_COLUMN = "c"; // so far all tables use this column only
@@ -46,8 +53,13 @@ public class HbaseAccess {
     private static HTablePool htablePool;
 
 
+<<<<<<< HEAD:src/main/java/com/servicenow/bigdata/metadata/HbaseAccess.java
     // init connections, make sure hbase has the right schema and bind to the right warehouse
     public static final void init(String hbaseHost) {
+=======
+    // init connections and make sure hbase has the right schema
+    public static final void init(String hbaseURL) {
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11:src/main/java/com/servicenow/bigdata/metadata/HbaseAccess.java
 
         try {
             /* This master property seems not needed
@@ -88,6 +100,7 @@ public class HbaseAccess {
         }
     }
 
+<<<<<<< HEAD:src/main/java/com/servicenow/bigdata/metadata/HbaseAccess.java
     // bind all data access to a warehouse
     public static final void bindWarehouse() throws IOException {
         String warehouseName = System.getProperty("warehouse");
@@ -143,6 +156,18 @@ public class HbaseAccess {
         addValue(table,key,val.getBytes());
     }
 
+=======
+    // add this key-value pair to METADATA_TABLE
+    public static final void addValue(String key, String val) throws IOException {
+        addValue(METADATA_TABLE,key,val);
+    }
+
+    // add key-val pair to table
+    private static final void addValue(String table, String key, String val) throws IOException {
+        addValue(table,key,val.getBytes());
+    }
+
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11:src/main/java/com/servicenow/bigdata/metadata/HbaseAccess.java
     // add key-val pair to table
     private static final void addValue(String table, String key, byte[] val) throws IOException {
         HTableInterface htable = htablePool.getTable(table);
@@ -218,7 +243,7 @@ public class HbaseAccess {
         htable.setAutoFlush(true); // TODO: to optimize
         Result rs = htable.get(new Get(key.getBytes()));
         if (rs.isEmpty()) {
-            return "";
+            return null;
         }
         else {
             byte[] v = rs.getValue(DEFAULT_CF_BYTES,DEFAULT_COL_BYTES);

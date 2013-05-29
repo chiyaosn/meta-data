@@ -37,10 +37,17 @@ public class AsynchbaseAccess {
     private static HBaseClient client;
     static final Object lock = new Object();
 
+<<<<<<< HEAD:src/main/java/com/servicenow/bigdata/metadata/AsynchbaseAccess.java
     public static final void init(String hbaseHost) throws Exception {
 
         try {
             connect(hbaseHost);
+=======
+    public static final void init(String hbaseURL) throws Exception {
+
+        try {
+            connect(hbaseURL);
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11:src/main/java/com/servicenow/bigdata/metadata/AsynchbaseAccess.java
         } catch (Exception e) {
             logger.error("Asynchbase: Cannot initialize Hbase database");
             disconnect();
@@ -48,8 +55,13 @@ public class AsynchbaseAccess {
 
     }
 
+<<<<<<< HEAD:src/main/java/com/servicenow/bigdata/metadata/AsynchbaseAccess.java
     public static final void connect(String hbaseHost) {
         client = new HBaseClient(hbaseHost);
+=======
+    public static final void connect(String hbaseURL) {
+        client = new HBaseClient(hbaseURL);
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11:src/main/java/com/servicenow/bigdata/metadata/AsynchbaseAccess.java
     }
 
     public static final void disconnect() throws Exception {

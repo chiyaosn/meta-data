@@ -1,7 +1,10 @@
 import AssemblyKeys._
+<<<<<<< HEAD
 import sbtassembly.Plugin._
 import sbt._
 import Keys._
+=======
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
 
 seq(assemblySettings: _*)
 
@@ -48,5 +51,5 @@ publishTo := Some("snc-lab-snapshot" at "http://10.196.32.21:8081/nexus/content/
 
 publishMavenStyle := true
 
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-//credentials += Credentials("Sonatype Nexus Repository Manager", "10.196.32.21", "<me>","<my_password>")
+//credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+credentials += Credentials("Sonatype Nexus Repository Manager", "10.196.32.21", "<me>","<my_password>")

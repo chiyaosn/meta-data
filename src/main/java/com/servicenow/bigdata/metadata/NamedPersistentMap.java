@@ -1,12 +1,18 @@
 package com.servicenow.bigdata.metadata;
 
 import java.io.IOException;
+<<<<<<< HEAD
 import java.lang.reflect.InvocationTargetException;
+=======
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +26,7 @@ It is managed by MetaDataRepository so that such a map can be queried by its nam
 public class NamedPersistentMap {
 
     private static final Logger logger = LoggerFactory.getLogger(NamedPersistentMap.class);
+<<<<<<< HEAD
     private static String hbaseHost = "10.64.14.192";
     //private static String hbaseHost = "localhost";
 
@@ -30,6 +37,19 @@ public class NamedPersistentMap {
 
     private static Class dataAccess = HbaseAccess.class;
     //private static Class dataAccess = AsynchbaseAccess.class;
+=======
+    private static final String hbaseURL = "10.64.14.202";
+    //private static final String hbaseURL = "localhost";
+
+    public static final String KEY_SEPARATOR = "##";            // used to construct keys in hbase
+    public static final String TAG_SEPARATOR = "_";             // used to construct tag_keys in hbase
+    public static final String KEY_INSTANCE_SEPARATOR = "@@";   // used to construct key_instances in hbase
+    private String mapIDName;
+    private String mapIDTag;
+
+    //private static Class dataAccess = HbaseAccess.class;
+    private static Class dataAccess = AsynchbaseAccess.class;
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
 
     private NamedPersistentCache cache = new NamedPersistentCache();
 
@@ -37,6 +57,7 @@ public class NamedPersistentMap {
     // initialize data layer
     static {
         try {
+<<<<<<< HEAD
             if ("false".equalsIgnoreCase(System.getProperty("metaDataRepository.hbaseAsync"))) {
                 dataAccess = HbaseAccess.class;
             }
@@ -46,6 +67,11 @@ public class NamedPersistentMap {
             dataAccess.getMethod("init",String.class).invoke(null,hbaseHost);
         } catch (Exception e) {
             logger.error("Cannot initialize Hbase data access",e);
+=======
+            dataAccess.getMethod("init",String.class).invoke(null,hbaseURL);
+        } catch (Exception e) {
+             logger.error("Cannot initialize Hbase data access");
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
         }
     }
 
@@ -55,10 +81,14 @@ public class NamedPersistentMap {
         this.mapIDName = mapIDName;
         try {
             mapIDTag = (String) dataAccess.getMethod("getMapTag", String.class).invoke(null, mapIDName);
+<<<<<<< HEAD
         } catch (Exception e)  {
             logger.error("Cannot get map tag from HBase",e);
             throw new IOException(e);
         }
+=======
+        } catch (Exception e)  {e.printStackTrace();}
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 
@@ -68,13 +98,18 @@ public class NamedPersistentMap {
         dataAccess = enableAH == true? AsynchbaseAccess.class : HbaseAccess.class;
         try {
             mapIDTag = (String) dataAccess.getMethod("getMapTag", String.class).invoke(null, mapIDName);
+<<<<<<< HEAD
         } catch (Exception e) {
             logger.error("Cannot get map tag from HBase",e);
         }
+=======
+        } catch (Exception e) {e.printStackTrace();}
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     }
 
 
     // enable Asynchbase
+<<<<<<< HEAD
     public void enableAsynchbase(boolean status) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if(status) {
             dataAccess = AsynchbaseAccess.class;
@@ -83,6 +118,14 @@ public class NamedPersistentMap {
         else {
             dataAccess = HbaseAccess.class;
             dataAccess.getMethod("init",String.class).invoke(null,hbaseHost);
+=======
+    public void enableAsynchbase(boolean status) {
+        if(status) {
+            dataAccess = AsynchbaseAccess.class;
+        }
+        else {
+            dataAccess = HbaseAccess.class;
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
         }
     }
 
@@ -129,7 +172,10 @@ public class NamedPersistentMap {
         for (String s:result) {
              sb.append(s).append(",");
         }
+<<<<<<< HEAD
         logger.debug("NPM "+mapIDName+" "+key+" "+sb.toString());
+=======
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
         return result;
     }
 

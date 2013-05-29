@@ -1,8 +1,11 @@
 package com.servicenow.bigdata.metadata;
 
+<<<<<<< HEAD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+=======
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -14,8 +17,11 @@ import java.util.HashSet;
  * To change this template use File | Settings | File Templates.
  */
 public class NamedPersistentCache {
+<<<<<<< HEAD
 
     private static final Logger logger = LoggerFactory.getLogger(NamedPersistentCache.class);
+=======
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
     private HashSet<String> cache = new HashSet<>();
 
     public NamedPersistentCache() {}
@@ -25,7 +31,11 @@ public class NamedPersistentCache {
     }
 
     public boolean add(String key) {
+<<<<<<< HEAD
         logger.debug("Added cache key: " + key);
+=======
+        System.out.println("Added cache key: " + key);
+>>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
         return cache.add(key);
     }
 
