@@ -1,11 +1,4 @@
 import AssemblyKeys._
-<<<<<<< HEAD
-import sbtassembly.Plugin._
-import sbt._
-import Keys._
-=======
->>>>>>> 2d5414547256609f3cfe63f878baeadd9cc9fc11
-
 seq(assemblySettings: _*)
 
 organization := "com.servicenow.bigdata"
